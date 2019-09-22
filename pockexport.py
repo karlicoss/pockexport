@@ -27,9 +27,10 @@ class Exporter:
             meta=1,
             posts=1,
             total=1,
+            forceaccount=1,
             state='all',
             sort='newest',
-            forceaccount=1,
+            detailType='complete',
         )
         return res[0]
 

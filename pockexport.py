@@ -43,7 +43,7 @@ def main():
     from export_helper import setup_parser
     import argparse
     # TODO literate documentation from help
-    parser = argparse.ArgumentParser("Export/takeout for your personal pocker data")
+    parser = argparse.ArgumentParser("Export/takeout for your personal Pocket data")
     setup_parser(parser=parser, params=['consumer_key', 'access_token'])
     args = parser.parse_args()
 

@@ -1,2 +1,1 @@
-#!/bin/bash -eu
-exec "$(dirname "$0")/pockexport.py" "$@"
+pockexport.py

@@ -1,0 +1,56 @@
+{
+ "list": {
+  "123456": {
+   "item_id": "123456",
+   "resolved_id": "1949330650",
+   "given_url": "https://www.gwern.net/Complexity-vs-AI",
+   "given_title": "Complexity no Bar to AI - Gwern.net",
+   "favorite": "0",
+   "status": "0",
+   "time_added": "1531130196",
+   "time_updated": "1569148190",
+   "time_read": "0",
+   "time_favorited": "0",
+   "sort_id": 0,
+   "resolved_title": "Complexity no Bar to AI",
+   "resolved_url": "https://www.gwern.net/Complexity-vs-AI",
+   "excerpt": "Premise 1 is incorrect because the proofs of those complexities generally depend on general solutions with deterministic exactly-optimal worst-case behavior. The apparent barrier of a complex problem can be bypassed by (in roughly increasing order of practical importance):",
+   "is_article": "1",
+   "is_index": "0",
+   "has_video": "0",
+   "has_image": "0",
+   "word_count": "3674",
+   "lang": "en",
+   "time_to_read": 17,
+   "posts": [
+    {
+     "post_id": "4282092",
+     "quote": "conjectures widely believed by humans one way but which could still ",
+     "comment": "Test?",
+     "time_shared": "1561240535",
+     "like_status": "0",
+     "repost_status": "0",
+     "like_count": {
+      "count": "0",
+      "destination_url": "https://getpocket.com/app/likes/4282092"
+     },
+     "repost_count": {
+      "count": "0",
+      "destination_url": "https://getpocket.com/app/reposts/4282092"
+     }
+    }
+   ],
+   "annotations": [
+    {
+     "annotation_id": "feffwf-fewfwl-45huf-3g2rg2f",
+     "item_id": "1949330650",
+     "quote": "iving up determinism and using randomized algorithms which are faster but may not return an answer or a correct answer1 ",
+     "patch": "@@ -997,16 +997,36 @@\n  P=NP)%0Ag\n+%3Cpkt_tag_annotation%3E\n iving up\n@@ -1137,16 +1137,37 @@\n answer1 \n+%3C/pkt_tag_annotation%3E\n (they ty\n",
+     "version": "2",
+     "created_at": "2019-09-22 03:36:43"
+    },
+   ],
+  },
+ },
+ "account": ....
+}

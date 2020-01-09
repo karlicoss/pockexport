@@ -40,11 +40,7 @@ def get_json(**params):
 
 
 def main():
-    from export_helper import setup_parser
-    import argparse
-    # TODO literate documentation from help
-    parser = argparse.ArgumentParser("Export/takeout for your personal Pocket data")
-    setup_parser(parser=parser, params=['consumer_key', 'access_token'])
+    parser = make_parser()
     args = parser.parse_args()
 
     params = args.params
@@ -53,6 +49,22 @@ def main():
     j = get_json(**params)
     js = json.dumps(j, ensure_ascii=False, indent=1)
     dumper(js)
+
+
+def make_parser():
+    from export_helper import setup_parser
+    import argparse
+    parser = argparse.ArgumentParser(
+        'Export/takeout for your personal Pocket data',
+        formatter_class=argparse.RawTextHelpFormatter, # TODO move this to export_helper?
+    )
+    setup_parser(
+        parser=parser,
+        params=['consumer_key', 'access_token'],
+        extra_usage='''
+You can also import ~export.py~ this as a module and call ~get_json~ function directly to get raw JSON.
+''')
+    return parser
 
 
 if __name__ == '__main__':

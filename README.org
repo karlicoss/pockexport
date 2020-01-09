@@ -1,0 +1,71 @@
+Export your personal Pocket data, including highlights as JSON.
+
+* Setting up
+1. =pip3 install -r requirements.txt=
+2. To use the API you need a =consumer_key=. You've got two alternatives here:
+   - Lawful good way: register an app [[https://getpocket.com/developer/apps/new][here]] with 'Retrieve' permissions and type 'Desktop (other)'.
+     Open app in the list and take note of =consumer_key=.
+   - Chaotic way: get API key directly from web app. 
+     The benefit of doing this is that API gives away more data, *including highlights*.
+     
+     # TODO link to exports?
+     To do that, go to [[https://app.getpocket.com][Pocket web app]], open Network Monitor from your browser dev tools 
+     (e.g. [[https://developer.mozilla.org/en-US/docs/Tools/Network_Monitor#UI_overview][firefox]]), and refresh the page.
+     
+     You can find =consumer_key= in 'Request URL' for any of =json= requests.
+     
+     If you still struggle with these steps, I recommend a comprehensive [[https://willschenk.com/articles/2019/reverse_engineering_apis_using_chrome/#select-the-network-tab][tutorial]].
+     
+     This is sort of hacky, but only way I know of extracting highlights. I tried registering apps targeting other platforms (e.g. web/extension), but still nothing, seems that Pocket's consumer key is hardcoded in backend code or something.
+     
+3. Follow [[https://github.com/tapanpandita/pocket#oauth][these]] instructions to retrieve an API token using =consumer_key= you got on the previous step. 
+
+   You can use anything as =redirect_uri=, e.g. =https://example.com=. You should get =access_token= after that.
+   
+   You only need to do this step once, after that you can use =access_token= straightaway.
+
+* Exporting
+
+#+begin_src python :results drawer :exports results 
+import export; return export.make_parser().epilog
+#+end_src
+
+#+RESULTS:
+:results:
+
+Usage:
+
+*Recommended*: create =secrets.py= keeping your api parameters, e.g.:
+
+
+: consumer_key = "CONSUMER_KEY"
+: access_token = "ACCESS_TOKEN"
+
+
+After that, use:
+
+: ./export.py --secrets /path/to/secrets.py
+
+That way you type less and have control over where you keep your plaintext tokens/passwords.
+
+*Alternatively*, you can pass parameters directly, e.g.
+
+: ./export.py --consumer_key <consumer_key> --access_token <access_token>
+
+However, this is verbose and prone to leaking your keys in shell history.
+    
+You can also import ~export.py~ this as a module and call ~get_json~ function directly to get raw JSON.
+:end:
+
+# TODO DAL?
+
+
+* Limitations
+I'm not aware of any limits on number of old entries you can retrieve through API; it doesn't even have pagination. If you know of them, please let me know or open PR!
+
+I **highly** recommend to back up regularly and keep old exports. Easy way to achieve it is command like this: ~./export --secrets secrets.py >"export-$(date -I).json"~.
+
+# TODO link to exports post?
+
+* Example output
+See [[file:example-output.json][./example-output.json]], it's got some example data you might find in your data export.

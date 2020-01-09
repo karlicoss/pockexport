@@ -63,7 +63,11 @@ You can also import ~export.py~ this as a module and call ~get_json~ function di
 * Limitations
 I'm not aware of any limits on number of old entries you can retrieve through API; it doesn't even have pagination. If you know of them, please let me know or open PR!
 
-I **highly** recommend to back up regularly and keep old exports. Easy way to achieve it is command like this: ~./export --secrets secrets.py >"export-$(date -I).json"~.
+I *highly* recommend to back up regularly and keep old exports. Easy way to achieve it is command like this: 
+
+: ./export --secrets secrets.py >"export-$(date -I).json"
+
+Or, you can use [[https://github.com/karlicoss/arctee][arctee]] that automates this.
 
 # TODO link to exports post?
 

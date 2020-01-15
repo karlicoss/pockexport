@@ -1,7 +1,7 @@
 Export your personal Pocket data, including highlights as JSON.
 
 * Setting up
-1. =pip3 install -r requirements.txt=
+1. =pip3 install --user -r requirements.txt=
 2. To use the API you need a =consumer_key=. You've got two alternatives here:
    - Lawful good way: register an app [[https://getpocket.com/developer/apps/new][here]] with 'Retrieve' permissions and type 'Desktop (other)'.
      Open app in the list and take note of =consumer_key=.
@@ -65,7 +65,7 @@ I'm not aware of any limits on number of old entries you can retrieve through AP
 
 I *highly* recommend to back up regularly and keep old exports. Easy way to achieve it is command like this: 
 
-: ./export --secrets secrets.py >"export-$(date -I).json"
+: ./export.py --secrets /path/to/secrets.py >"export-$(date -I).json"
 
 Or, you can use [[https://github.com/karlicoss/arctee][arctee]] that automates this.
 

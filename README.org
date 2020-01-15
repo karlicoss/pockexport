@@ -57,9 +57,6 @@ However, this is verbose and prone to leaking your keys in shell history.
 You can also import ~export.py~ this as a module and call ~get_json~ function directly to get raw JSON.
 :end:
 
-# TODO DAL?
-
-
 * Limitations
 I'm not aware of any limits on number of old entries you can retrieve through API; it doesn't even have pagination. If you know of them, please let me know or open PR!
 
@@ -70,6 +67,30 @@ I *highly* recommend to back up regularly and keep old exports. Easy way to achi
 Or, you can use [[https://github.com/karlicoss/arctee][arctee]] that automates this.
 
 # TODO link to exports post?
+# TODO could add this to epilog of export script if api is restrictive?
 
 * Example output
 See [[file:example-output.json][./example-output.json]], it's got some example data you might find in your data export.
+
+
+* Using data
+  
+#+begin_src python :results drawer :exports results 
+import dal_helper; return dal_helper.make_parser().epilog
+#+end_src
+
+#+RESULTS:
+:results:
+
+You can use =dal.py= (stands for "Data Access/Abstraction Layer") to access your exported data, even offline.
+I elaborate on motivation behind it [[https://beepb00p.xyz/exports.html#dal][here]].
+
+- main usecase is to be imported as python module to allow for *programmatic access* to your data.
+
+  You can find some inspiration in [[https://beepb00p.xyz/mypkg.html][=my.=]] package that I'm using as an API to all my personal data.
+
+- to test it against your export, simply run: ~./dal.py --source /path/to/export~
+
+- you can also try it interactively: ~./dal.py --source /path/to/export --interactive~
+
+:end:

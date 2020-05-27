@@ -1,3 +1,16 @@
+"""
+This file is shared among all most of my export scripts and contains various boilerplaty stuff.
+
+If you know how to make any of this easier, please let me know!
+"""
+
+__all__ = [
+    'PathIsh',
+    'Json',
+    'Res',
+    'the',
+]
+
 import argparse
 from glob import glob
 from pathlib import Path
@@ -94,9 +107,43 @@ def logger(logger, **kwargs):
         return LazyLogger(logger, **kwargs)
 
 
-__all__ = [
-    'PathIsh',
-    'Json',
-    'Res',
-]
+from typing import Iterable
+def the(l: Iterable[T]) -> T:
+    it = iter(l)
+    try:
+        first = next(it)
+    except StopIteration as ee:
+        raise RuntimeError('Empty iterator?')
+    assert all(e == first for e in it)
+    return first
 
+
+def fix_imports(dal_globs):
+    '''
+    TLDR: this is necessary to allow running dal.py both as interactive script and import it as a library.
+    Without this, you have to duplicate all imports to support __main__ version (absolute) and package version (relative, dotted).
+    '''
+    import sys
+
+    dal_path = Path(dal_globs['__file__'])
+    dal_dir = dal_path.absolute().parent
+    module_name = dal_dir.name
+
+    # 1. set package name to directory name, as if we imported the module from elsewhere
+    dal_globs['__package__'] = module_name
+
+    from importlib.machinery import ModuleSpec
+    from importlib.util import module_from_spec
+
+    # 2. create fake parent 'module'
+    spec = ModuleSpec(
+        name=module_name,
+        loader=None,  # None for namespace packages
+        is_package=True,
+    )
+    locs = spec.submodule_search_locations
+    assert locs is not None
+    # add to search path for relative to work properly
+    locs.append(str(dal_dir))
+    module = module_from_spec(spec)
+    sys.modules[module_name] = module

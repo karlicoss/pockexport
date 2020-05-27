@@ -4,8 +4,13 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Iterator, NamedTuple, Sequence
 
-import dal_helper
-from dal_helper import Json, PathIsh
+if __name__ == '__main__':
+    # see dal_helper.setup for the explanation
+    import dal_helper # type: ignore[import]
+    dal_helper.fix_imports(globals())
+
+from . import dal_helper  # type: ignore[no-redef]
+from .dal_helper import Json, PathIsh
 
 
 # TODO FIXME are times in utc? not mentioned anywhere...
@@ -61,6 +66,7 @@ class DAL:
     def raw(self) -> Json:
         last = max(self.sources)
         # TODO not sure if worth elaborate merging logic?
+        # TODO not sure if this should be more defensive against empty sources?
         return json.loads(last.read_text())
 
     def articles(self) -> Iterator[Article]:

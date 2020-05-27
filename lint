@@ -1,0 +1,20 @@
+#!/bin/bash -eux
+
+cd "$(dirname "$0")"
+
+function run_mypy {
+    # TODO pretty errors etc?
+    mypy --namespace-packages --check-untyped "$@"
+}
+
+function run_pylint {
+    pylint -E "$@"
+}
+
+DAL="$(basename "$PWD").dal"
+
+              run_mypy export.py
+MYPYPATH=..   run_mypy -p $DAL
+
+              run_pylint export.py
+PYTHONPATH=.. run_pylint  $DAL

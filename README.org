@@ -46,15 +46,20 @@ After that, use:
 
 : ./export.py --secrets /path/to/secrets.py
 
-That way you type less and have control over where you keep your plaintext tokens/passwords.
+That way you type less and have control over where you keep your plaintext secrets.
 
 *Alternatively*, you can pass parameters directly, e.g.
 
 : ./export.py --consumer_key <consumer_key> --access_token <access_token>
 
-However, this is verbose and prone to leaking your keys in shell history.
-    
+However, this is verbose and prone to leaking your keys/tokens/passwords in shell history.
+
+
 You can also import ~export.py~ this as a module and call ~get_json~ function directly to get raw JSON.
+
+
+I *highly* recommend checking exported files at least once just to make sure they contain everything you expect from your export. If not, please feel free to ask or raise an issue!
+
 :end:
 
 * Limitations

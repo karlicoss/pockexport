@@ -39,7 +39,7 @@ def get_json(**params):
     return Exporter(**params).export_json()
 
 
-def main():
+def main() -> None:
     parser = make_parser()
     args = parser.parse_args()
 
@@ -52,17 +52,13 @@ def main():
 
 
 def make_parser():
-    from export_helper import setup_parser
-    import argparse
-    parser = argparse.ArgumentParser(
-        'Export/takeout for your personal Pocket data',
-        formatter_class=argparse.RawTextHelpFormatter, # TODO move this to export_helper?
-    )
+    from .exporthelpers.export_helper import setup_parser, Parser
+    parser = Parser('Export your personal Pocket data, *including highlights* as JSON.')
     setup_parser(
         parser=parser,
         params=['consumer_key', 'access_token'],
         extra_usage='''
-You can also import ~export.py~ this as a module and call ~get_json~ function directly to get raw JSON.
+You can also import ~pockexport.export~ as a module and call ~get_json~ function directly to get raw JSON.
 ''')
     return parser
 

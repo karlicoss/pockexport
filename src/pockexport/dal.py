@@ -4,13 +4,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Iterator, NamedTuple, Sequence
 
-if __name__ == '__main__':
-    # see dal_helper.setup for the explanation
-    import dal_helper # type: ignore[import]
-    dal_helper.fix_imports(globals())
-
-from . import dal_helper  # type: ignore[no-redef]
-from .dal_helper import Json, PathIsh
+from .exporthelpers import dal_helper
+from .exporthelpers.dal_helper import Json, PathIsh
 
 
 # TODO FIXME are times in utc? not mentioned anywhere...

@@ -1,0 +1,3 @@
+[submodule "src/pockexport/exporthelpers"]
+	path = src/pockexport/exporthelpers
+	url = https://github.com/karlicoss/exporthelpers.git

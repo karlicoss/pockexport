@@ -68,6 +68,27 @@ class DAL:
         yield from map(Article, self.raw()['list'].values())
 
 
+def _get_test_sources() -> Sequence[PathIsh]:
+    testdata = Path(__file__).absolute().parent.parent.parent / 'testdata'
+    files = list(testdata.rglob('pocket-collect-list.json'))
+    assert len(files) > 0
+    return files
+
+
+def test() -> None:
+    dal = DAL(_get_test_sources())
+    articles = list(dal.articles())
+    assert len(articles) == 10
+    for a in articles:
+        assert a.url         is not None
+        assert a.title       is not None
+        assert a.pocket_link is not None
+        assert a.added       is not None
+        for h in a.highlights:
+            h.text
+            h.created
+
+
 def demo(dal: DAL) -> None:
     articles = list(dal.articles())
     for a in articles:

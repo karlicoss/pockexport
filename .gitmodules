@@ -1,3 +1,6 @@
 [submodule "src/pockexport/exporthelpers"]
 	path = src/pockexport/exporthelpers
 	url = https://github.com/karlicoss/exporthelpers.git
+[submodule "testdata/zen-headset"]
+	path = testdata/zen-headset
+	url = https://github.com/markdyousef/zen-headset

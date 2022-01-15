@@ -1,7 +1,7 @@
 from setuptools import setup, find_namespace_packages # type: ignore
 
 
-def main():
+def main() -> None:
     pkgs = find_namespace_packages('src')
     pkg = min(pkgs)
     return setup(
@@ -16,7 +16,7 @@ def main():
         ],
         extras_require={
             'testing': ['pytest'],
-            'linting': ['pytest', 'mypy'],
+            'linting': ['pytest', 'mypy', 'lxml'], # lxml for mypy coverage report
         },
     )
 

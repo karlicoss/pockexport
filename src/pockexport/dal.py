@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Any, Iterator, NamedTuple, Sequence
 
 from .exporthelpers import dal_helper
-from .exporthelpers.dal_helper import Json, PathIsh
+from .exporthelpers.dal_helper import Json, PathIsh, pathify
 
 
 # TODO FIXME are times in utc? not mentioned anywhere...
@@ -56,7 +56,7 @@ class Article(NamedTuple):
 
 class DAL:
     def __init__(self, sources: Sequence[PathIsh]) -> None:
-        self.sources = list(map(Path, sources))
+        self.sources = list(map(pathify, sources))
 
     def raw(self) -> Json:
         last = max(self.sources)

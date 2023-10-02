@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 import json
 
-import pocket # type: ignore
+import pocket  # type: ignore
+
 
 class Exporter:
     def __init__(self, *args, **kwargs) -> None:

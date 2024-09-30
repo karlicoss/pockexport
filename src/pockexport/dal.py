@@ -1,28 +1,43 @@
 #!/usr/bin/env python3
+from __future__ import annotations
+
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Iterator, NamedTuple, Sequence
+from typing import Iterator, NamedTuple, Sequence
 
 from .exporthelpers import dal_helper
-from .exporthelpers.dal_helper import Json, PathIsh, pathify
+from .exporthelpers.dal_helper import (
+    Json,
+    PathIsh,
+    datetime_aware,
+    fromisoformat,
+    pathify,
+)
 
-# TODO FIXME are times in utc? not mentioned anywhere...
 
 class Highlight(NamedTuple):
-    json: Any
+    json: Json
 
     @property
     def text(self) -> str:
         return self.json['quote']
 
     @property
-    def created(self) -> datetime:
-        return datetime.strptime(self.json['created_at'], '%Y-%m-%d %H:%M:%S')
+    def created(self) -> datetime_aware:
+        created_at_s = self.json['created_at']
+        if created_at_s.endswith('Z'):
+            # FIXME not convinced timestamp is correct here?
+            # tested with item highlighted at 2024-09-30 at 00:53 UTC and it appeared as 2024-09-29T19:53:35.000Z in export??
+            return fromisoformat(created_at_s)
+        else:
+            # older format (pre September 2024)
+            dt = datetime.strptime(self.json['created_at'], '%Y-%m-%d %H:%M:%S')
+            return dt.replace(tzinfo=timezone.utc)
 
 
 class Article(NamedTuple):
-    json: Any
+    json: Json
 
     @property
     def url(self) -> str:
@@ -41,8 +56,8 @@ class Article(NamedTuple):
         return 'https://app.getpocket.com/read/' + self.json['item_id']
 
     @property
-    def added(self) -> datetime:
-        return datetime.fromtimestamp(int(self.json['time_added']))
+    def added(self) -> datetime_aware:
+        return datetime.fromtimestamp(int(self.json['time_added']), tz=timezone.utc)
 
     @property
     def highlights(self) -> Sequence[Highlight]:
@@ -64,7 +79,12 @@ class DAL:
         return json.loads(last.read_text())
 
     def articles(self) -> Iterator[Article]:
-        yield from map(Article, self.raw()['list'].values())
+        for j in self.raw()['list'].values():
+            # means "item should be deleted" according to api?? https://getpocket.com/developer/docs/v3/retrieve
+            # started happening around September 2024... in this case there is no data inside except item id
+            if j['status'] == '2':
+                continue
+            yield Article(j)
 
 
 def _get_test_sources() -> Sequence[PathIsh]:
@@ -79,10 +99,10 @@ def test() -> None:
     articles = list(dal.articles())
     assert len(articles) == 10
     for a in articles:
-        assert a.url         is not None
-        assert a.title       is not None
+        assert a.url is not None
+        assert a.title is not None
         assert a.pocket_link is not None
-        assert a.added       is not None
+        assert a.added is not None
         for h in a.highlights:
             h.text  # noqa: B018
             h.created  # noqa: B018

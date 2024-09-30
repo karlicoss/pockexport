@@ -7,7 +7,6 @@ from typing import Any, Iterator, NamedTuple, Sequence
 from .exporthelpers import dal_helper
 from .exporthelpers.dal_helper import Json, PathIsh, pathify
 
-
 # TODO FIXME are times in utc? not mentioned anywhere...
 
 class Highlight(NamedTuple):
@@ -85,8 +84,8 @@ def test() -> None:
         assert a.pocket_link is not None
         assert a.added       is not None
         for h in a.highlights:
-            h.text
-            h.created
+            h.text  # noqa: B018
+            h.created  # noqa: B018
 
 
 def demo(dal: DAL) -> None:

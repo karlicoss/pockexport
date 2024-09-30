@@ -5,6 +5,7 @@ name = "pockexport"
 dependencies = [
     "pocket",  # pocket API bindings
 ]
+requires-python = ">= 3.8"
 
 ## these need to be set if you're planning to upload to pypi
 # description = "TODO"
@@ -26,13 +27,16 @@ dependencies = [
 ##
 
 [project.optional-dependencies]
+optional = [
+    "colorlog", # exporthelpers (lnicer logging)
+    "orjson",   # exporthelpers (faster json processing)
+    "ijson",    # exporthelpers (faster iterative json processing)
+]
 testing = [
     "pytest",
     "ruff",
     "mypy",
     "lxml",  # for mypy html coverage
-    "orjson",  # exporthelpers
-    "colorlog",  # exporthelpers
 ]
 
 

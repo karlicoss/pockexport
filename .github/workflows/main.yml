@@ -26,8 +26,17 @@ jobs:
       matrix:
         platform: [ubuntu-latest, macos-latest, windows-latest]
         python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
-        # vvv just an example of excluding stuff from matrix
-        # exclude: [{platform: macos-latest, python-version: '3.6'}]
+        exclude: [
+            # windows runners are pretty scarce, so let's only run lowest and highest python version
+            {platform: windows-latest, python-version: '3.9' },
+            {platform: windows-latest, python-version: '3.10'},
+            {platform: windows-latest, python-version: '3.11'},
+
+            # same, macos is a bit too slow and ubuntu covers python quirks well
+            {platform: macos-latest  , python-version: '3.9' },
+            {platform: macos-latest  , python-version: '3.10'},
+            {platform: macos-latest  , python-version: '3.11'},
+        ]
 
     runs-on: ${{ matrix.platform }}
 
@@ -35,11 +44,11 @@ jobs:
     # ugh https://github.com/actions/toolkit/blob/main/docs/commands.md#path-manipulation
     - run: echo "$HOME/.local/bin" >> $GITHUB_PATH
 
-    - uses: actions/setup-python@v4
+    - uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
 
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         submodules: recursive
         fetch-depth: 0  # nicer to have all git history when debugging/for tests
@@ -51,8 +60,9 @@ jobs:
     - run: bash .ci/run
 
     - if: matrix.platform == 'ubuntu-latest'  # no need to compute coverage for other platforms
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
+        include-hidden-files: true
         name: .coverage.mypy_${{ matrix.platform }}_${{ matrix.python-version }}
         path: .coverage.mypy/
 

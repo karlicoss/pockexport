@@ -53,7 +53,7 @@ def main() -> None:
 
 
 def make_parser():
-    from .exporthelpers.export_helper import setup_parser, Parser
+    from .exporthelpers.export_helper import Parser, setup_parser
     parser = Parser('Export your personal Pocket data, *including highlights* as JSON.')
     setup_parser(
         parser=parser,

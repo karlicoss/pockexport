@@ -2,8 +2,16 @@
 from __future__ import annotations
 
 import json
+import logging
 
 import pocket  # type: ignore
+from tenacity import (
+    before_sleep_log,
+    retry,
+    retry_if_exception,
+    stop_after_attempt,
+    wait_exponential,
+)
 
 from .exporthelpers.export_helper import Json
 from .exporthelpers.logging_helper import make_logger
@@ -14,6 +22,11 @@ from .exporthelpers.logging_helper import make_logger
 ###
 
 logger = make_logger(__name__, level='debug')
+
+
+def _retry_if(e: BaseException) -> bool:
+    # seems to randomly occur at times?
+    return 'Internal server error' in str(e)
 
 
 class Exporter:
@@ -27,6 +40,19 @@ class Exporter:
         def get(self, **kwargs):
             pass
 
+        @retry(
+            retry=retry_if_exception(predicate=_retry_if),
+            wait=wait_exponential(max=60 * 10),  # 10 mins
+            stop=stop_after_attempt(10),
+            before_sleep=before_sleep_log(logger, logging.WARNING),
+        )
+        def get_with_retry(*args, **kwargs) -> Json:
+            res, _headers = get(*args, **kwargs)
+            error = res.get('error')
+            if error is None:
+                return res
+            raise RuntimeError(error)
+
         all_items: dict[str, Json] = {}
 
         first_res: Json | None = None
@@ -35,7 +61,7 @@ class Exporter:
         while True:
             offset = len(all_items)
             logger.debug(f'retrieving from {offset=} (expected {total=})')
-            res, _headers = get(
+            res = get_with_retry(
                 self.api,
                 images=1,
                 videos=1,
@@ -57,7 +83,6 @@ class Exporter:
             if first_res is None:
                 first_res = res
 
-            assert res.get('error') is None, res  # just in case
             total = int(res['total'])
 
             new_items: dict[str, Json] = res['list']

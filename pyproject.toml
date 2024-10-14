@@ -3,7 +3,8 @@
 dynamic = ["version"]  # version is managed by setuptools_scm
 name = "pockexport"
 dependencies = [
-    "pocket",  # pocket API bindings
+    "pocket"  , # pocket API bindings
+    "tenacity", # retrying API requests
 ]
 requires-python = ">= 3.8"
 

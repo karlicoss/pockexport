@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Iterator, Sequence
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Iterator, NamedTuple, Sequence
+from typing import NamedTuple
 
 from .exporthelpers import dal_helper
 from .exporthelpers.dal_helper import (

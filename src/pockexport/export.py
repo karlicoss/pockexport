@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 from __future__ import annotations
 
 import json
@@ -24,9 +23,11 @@ from .exporthelpers.logging_helper import make_logger
 logger = make_logger(__name__, level='debug')
 
 
-def _retry_if(e: BaseException) -> bool:
+def _retry_if(_e: BaseException) -> bool:
+    # NOTE: since pocket is shutting down soon, no point figuring out a nice/careful retry strategy -- just retry on all errors
+    return True
     # seems to randomly occur at times?
-    return 'Internal server error' in str(e)
+    # return 'Internal server error' in str(e)
 
 
 class Exporter:

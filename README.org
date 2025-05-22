@@ -99,21 +99,21 @@ See [[file:example-output.json][./example-output.json]], it's got some example d
 * Using data
   
 #+begin_src python :dir src  :results drawer :exports results
-import ghexport.exporthelpers.dal_helper as D; return D.make_parser().epilog
+import pockexport.exporthelpers.dal_helper as D; return D.make_parser().epilog
 #+end_src
 
 #+RESULTS:
 :results:
 
-You can use =ghexport.dal= (stands for "Data Access/Abstraction Layer") to access your exported data, even offline.
+You can use =pockexport.dal= (stands for "Data Access/Abstraction Layer") to access your exported data, even offline.
 I elaborate on motivation behind it [[https://beepb00p.xyz/exports.html#dal][here]].
 
 - main usecase is to be imported as python module to allow for *programmatic access* to your data.
 
-  You can find some inspiration in [[https://beepb00p.xyz/mypkg.html][=my.=]] package that I'm using as an API to all my personal data.
+  You can find some inspiration in [[https://beepb00p.xyz/mypkg.html][=HPI=]] package that I'm using as an API to all my personal data.
 
-- to test it against your export, simply run: ~python3 -m ghexport.dal --source /path/to/export~
+- to test it against your export, simply run: ~python3 -m pockexport.dal --source /path/to/export~
 
-- you can also try it interactively: ~python3 -m ghexport.dal --source /path/to/export --interactive~
+- you can also try it interactively: ~python3 -m pockexport.dal --source /path/to/export --interactive~
 
 :end:

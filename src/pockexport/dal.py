@@ -63,7 +63,7 @@ class Article(NamedTuple):
     def highlights(self) -> Sequence[Highlight]:
         raw = self.json.get('annotations', [])
         # TODO warn an link how to get highlights?
-        return list(map(Highlight, raw))
+        return list(map(Highlight, raw))  # ty: ignore[invalid-argument-type]
 
     # TODO add tags?
 

@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import logging
 
-import pocket  # type: ignore
+import pocket  # type: ignore[import-untyped]
 from tenacity import (
     before_sleep_log,
     retry,
@@ -32,7 +32,7 @@ def _retry_if(_e: BaseException) -> bool:
 
 class Exporter:
     def __init__(self, *args, **kwargs) -> None:
-        self.api = pocket.Pocket(*args, **kwargs)
+        self.api = pocket.Pocket(*args, **kwargs)  # ty: ignore[missing-argument]
 
     def export_json(self):
         # When pocket web app queries api it's got some undocumented parameters, so this small hack allows us to use them too

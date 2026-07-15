@@ -2,16 +2,14 @@ from __future__ import annotations
 
 import json
 from collections.abc import Iterator, Sequence
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import NamedTuple
 
 from .exporthelpers import dal_helper
 from .exporthelpers.dal_helper import (
     Json,
-    PathIsh,
     datetime_aware,
-    fromisoformat,
     pathify,
 )
 
@@ -29,11 +27,11 @@ class Highlight(NamedTuple):
         if created_at_s.endswith('Z'):
             # FIXME not convinced timestamp is correct here?
             # tested with item highlighted at 2024-09-30 at 00:53 UTC and it appeared as 2024-09-29T19:53:35.000Z in export??
-            return fromisoformat(created_at_s)
+            return datetime.fromisoformat(created_at_s)
         else:
             # older format (pre September 2024)
             dt = datetime.strptime(self.json['created_at'], '%Y-%m-%d %H:%M:%S')
-            return dt.replace(tzinfo=timezone.utc)
+            return dt.replace(tzinfo=UTC)
 
 
 class Article(NamedTuple):
@@ -57,19 +55,19 @@ class Article(NamedTuple):
 
     @property
     def added(self) -> datetime_aware:
-        return datetime.fromtimestamp(int(self.json['time_added']), tz=timezone.utc)
+        return datetime.fromtimestamp(int(self.json['time_added']), tz=UTC)
 
     @property
     def highlights(self) -> Sequence[Highlight]:
         raw = self.json.get('annotations', [])
         # TODO warn an link how to get highlights?
-        return list(map(Highlight, raw))  # ty: ignore[invalid-argument-type]
+        return list(map(Highlight, raw))
 
     # TODO add tags?
 
 
 class DAL:
-    def __init__(self, sources: Sequence[PathIsh]) -> None:
+    def __init__(self, sources: Sequence[Path | str]) -> None:
         self.sources = list(map(pathify, sources))
 
     def raw(self) -> Json:
@@ -87,7 +85,7 @@ class DAL:
             yield Article(j)
 
 
-def _get_test_sources() -> Sequence[PathIsh]:
+def _get_test_sources() -> Sequence[Path | str]:
     testdata = Path(__file__).absolute().parent.parent.parent / 'testdata'
     files = list(testdata.rglob('pocket-collect-list.json'))
     assert len(files) > 0

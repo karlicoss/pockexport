@@ -4,7 +4,8 @@ set -eu
 cd "$(dirname "$0")"
 cd .. # git root
 
-if ! command -v sudo; then
+# projects might need sudo to install OS specific stuff below.
+if ! command -v sudo >/dev/null; then
     # CI or Docker sometimes doesn't have it, so useful to have a dummy
     function sudo {
         "$@"
@@ -16,7 +17,7 @@ tox_cmd='run-parallel --parallel-live'
 if [ -n "${CI-}" ]; then
     # install OS specific stuff here
     case "$OSTYPE" in
-    darwin*) 
+    darwin*)
         # macos
         :
         ;;
@@ -34,3 +35,5 @@ fi
 
 # NOTE: expects uv installed
 uv tool run --with tox-uv tox $tox_cmd "$@"
+# NOTE: experimenting for now... might switch later for good
+# uv tool run nox "$@"

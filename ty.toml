@@ -1,4 +1,0 @@
-[src]
-exclude = [
-    "testdata/",
-]

@@ -5,6 +5,7 @@ from collections.abc import Iterator, Sequence
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import NamedTuple
+from zoneinfo import ZoneInfo
 
 from .exporthelpers import dal_helper
 from .exporthelpers.dal_helper import (
@@ -12,6 +13,16 @@ from .exporthelpers.dal_helper import (
     datetime_aware,
     pathify,
 )
+
+# Pocket configures the annotations database session as US/Central.
+# Its /v3 transformer documents Central timestamps and emits ISO strings.
+# The observed API timestamps therefore contain Central wall time with a misleading UTC "Z".
+# Use America/Chicago so daylight-saving transitions are preserved.
+# This is also validated against zip data export from Pocket.
+# https://github.com/Pocket/pocket-monorepo/blob/542fd269a750a446f2ae0367acf270fd517a3416/servers/annotations-api/src/config/index.ts#L62-L78
+# https://github.com/Pocket/pocket-monorepo/blob/542fd269a750a446f2ae0367acf270fd517a3416/servers/annotations-api/src/database/client.ts#L50-L80
+# https://github.com/Pocket/pocket-monorepo/blob/542fd269a750a446f2ae0367acf270fd517a3416/servers/v3-proxy-api/src/graph/get/toRest.ts#L230-L253
+_CENTRAL = ZoneInfo('America/Chicago')
 
 
 class Highlight(NamedTuple):
@@ -25,13 +36,13 @@ class Highlight(NamedTuple):
     def created(self) -> datetime_aware:
         created_at_s = self.json['created_at']
         if created_at_s.endswith('Z'):
-            # FIXME not convinced timestamp is correct here?
-            # tested with item highlighted at 2024-09-30 at 00:53 UTC and it appeared as 2024-09-29T19:53:35.000Z in export??
-            return datetime.fromisoformat(created_at_s)
+            # Pocket's API labels US/Central wall time as UTC.
+            dt = datetime.fromisoformat(created_at_s.removesuffix('Z'))
         else:
             # older format (pre September 2024)
+            # This is also US/Central wall time.
             dt = datetime.strptime(self.json['created_at'], '%Y-%m-%d %H:%M:%S')
-            return dt.replace(tzinfo=UTC)
+        return dt.replace(tzinfo=_CENTRAL).astimezone(UTC)
 
 
 class Article(NamedTuple):
@@ -104,6 +115,15 @@ def test() -> None:
         for h in a.highlights:
             h.text  # noqa: B018
             h.created  # noqa: B018
+
+
+def test_highlight_timezone() -> None:
+    def created(created_at: str) -> datetime:
+        return Highlight({'created_at': created_at}).created
+
+    assert created('2019-09-25 18:20:00') == datetime(2019, 9, 25, 23, 20, tzinfo=UTC)
+    assert created('2024-09-29T19:53:35.000Z') == datetime(2024, 9, 30, 0, 53, 35, tzinfo=UTC)
+    assert created('2024-01-15T12:00:00.000Z') == datetime(2024, 1, 15, 18, tzinfo=UTC)
 
 
 def demo(dal: DAL) -> None:

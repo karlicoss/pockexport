@@ -20,7 +20,11 @@ Homepage = "https://github.com/karlicoss/pockexport"
 
 
 [project.optional-dependencies]
-dal = []
+dal = [
+    # Windows does not provide an IANA time zone database.
+    # https://docs.python.org/3/library/zoneinfo.html#data-sources
+    "tzdata; sys_platform == 'win32'",
+]
 export = [
     "pocket"  , # pocket API bindings
     "tenacity", # retrying API requests
@@ -38,6 +42,8 @@ optional = [
 testing = [
     "pytest",
     "ruff",
+
+    "pockexport[dal,export]",
 ]
 typecheck = [
     "mypy",

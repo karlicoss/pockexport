@@ -1,0 +1,121 @@
+---
+format:
+  gfm:
+    # keep the line breaks from README.qmd, rather than rewrapping at 72 columns
+    wrap: preserve
+execute:
+  # Hide code by default; individual cells can override this when useful.
+  echo: false
+editor:
+  # this is for VS code
+  # note that it only works for 'preview' mode, not for markdown rendering
+  render-on-save: true
+---
+
+```{python}
+#| label: setup
+from importlib import import_module
+from pathlib import Path
+from tomllib import loads
+
+from hpikit.cli import format_epilog
+
+project = loads(Path("pyproject.toml").read_text())["project"]
+project_name = project["name"]
+
+export_parser = import_module(f'{project_name}.export').make_parser()
+dal_parser = import_module('hpikit.cli.dal').make_parser()
+```
+
+```{python}
+#| label: export-program
+#| output: asis
+print(export_parser.description)
+```
+
+<!-- Keep this separator: Quarto otherwise moves the generated preamble below the following heading. -->
+
+# Setting up
+
+1.  The easiest way is `pip3 install --user git+https://github.com/karlicoss/pockexport`.
+
+    Alternatively, clone the repository and run `pip3 install --editable .`.
+
+2.  To use the API you need a `consumer_key`. You've got three alternatives here:
+
+    - Lazy way: just use `78809-9423d8c743a58f62b23ee85c` as the consumer key.
+
+      This seems to be the hardcoded key Pocket uses for their web app. It's public and shared between all users, so there is no problem with sharing it here.
+
+    - Chaotic way: get API key directly from web app.
+
+      The benefit of doing this is that the API gives away more data, **including highlights** (unlike the consumer key you get by registering your own app).
+
+      Note that this will likely just give you the same key as above, although I'm not 100% sure.
+      E.g. [some people](https://github.com/karlicoss/pockexport/issues/6#issuecomment-1071883685) reported this method didn't work for them, unlike just simply using the hardcoded key.
+
+      <!-- TODO link to exports? -->
+
+      To do that, go to [Pocket web app](https://app.getpocket.com), open Network Monitor from your browser dev tools
+      (e.g. [firefox](https://developer.mozilla.org/en-US/docs/Tools/Network_Monitor#UI_overview)), and refresh the page.
+
+      You can find `consumer_key` in 'Request URL' for any of `json` requests.
+
+      If you still struggle with these steps, I recommend a comprehensive [tutorial](https://willschenk.com/articles/2019/reverse_engineering_apis_using_chrome/#select-the-network-tab).
+
+      This is sort of hacky, but only way I know of extracting highlights. I tried registering apps targeting other platforms (e.g. web/extension), but still nothing, seems that Pocket's consumer key is hardcoded in backend code or something.
+
+    - Lawful good way: register an app [here](https://getpocket.com/developer/apps/new) with 'Retrieve' permissions and type 'Desktop (other)'.
+
+      Then open app in the list and take note of `consumer_key`.
+
+3.  Follow [these](https://github.com/tapanpandita/pocket#oauth) instructions to retrieve an API token using `consumer_key` you got on the previous step.
+
+    You can use anything as `redirect_uri`, e.g. `https://example.com`. You should get `access_token` after that.
+
+    You only need to do this step once, after that you can use `access_token` straightaway.
+
+# Exporting
+
+```{python}
+#| label: export-help
+#| output: asis
+print(format_epilog(export_parser, prog=f'python3 -m {project_name}.export'))
+```
+
+# Limitations
+
+I'm not aware of any limits on number of old entries you can retrieve through API; it doesn't even have pagination. If you know of them, please let me know or open PR!
+
+I **highly** recommend to back up regularly and keep old exports. Easy way to achieve it is command like this:
+
+```
+python3 -m pockexport.export --secrets /path/to/secrets.py >"export-$(date -I).json"
+```
+
+Or, you can use [arctee](https://github.com/karlicoss/arctee) that automates this.
+
+<!--
+TODO link to exports post?
+TODO could add this to epilog of export script if api is restrictive?
+-->
+
+# Example output
+
+See [./example-output.json](example-output.json), it's got some example data you might find in your data export.
+
+# Using data
+
+```{python}
+#| label: dal-help
+#| output: asis
+print(format_epilog(dal_parser, prog=f'python3 -m {project_name}.dal'))
+```
+
+# Updating README
+
+This README is generated from a 'literate' Quarto [README.qmd](README.qmd) via the following command:
+
+`tox -e quarto`
+
+If you want to correct something, feel free to simply update `README.md` though, I can reconcile the changes next time I regenerate it.

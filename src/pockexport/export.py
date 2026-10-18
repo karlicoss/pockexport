@@ -1,9 +1,13 @@
 from __future__ import annotations
 
+import argparse
 import json
 import logging
 
+import hpikit.cli.export as cli
 import pocket  # type: ignore[import-untyped]
+from hpikit.json import Json
+from kloggy import get_logger
 from tenacity import (
     before_sleep_log,
     retry,
@@ -12,15 +16,12 @@ from tenacity import (
     wait_exponential,
 )
 
-from .exporthelpers.export_helper import Json
-from .exporthelpers.logging_helper import make_logger
-
 ## useful for debugging
 # from http.client import HTTPConnection
 # HTTPConnection.debuglevel = 1
 ###
 
-logger = make_logger(__name__, level='debug')
+logger = get_logger(__name__)
 
 
 def _retry_if(_e: BaseException) -> bool:
@@ -34,7 +35,7 @@ class Exporter:
     def __init__(self, *args, **kwargs) -> None:
         self.api = pocket.Pocket(*args, **kwargs)
 
-    def export_json(self):
+    def export_json(self) -> Json:
         # When pocket web app queries api it's got some undocumented parameters, so this small hack allows us to use them too
         # e.g. {"images":1,"videos":1,"tags":1,"rediscovery":1,"annotations":1,"authors":1,"itemTopics":1,"meta":1,"posts":1,"total":1,"state":"unread","offset":0,"sort":"newest","count":24,"forceaccount":1,"locale_lang":"en-US"}
         @pocket.method_wrapper
@@ -61,7 +62,7 @@ class Exporter:
 
         while True:
             offset = len(all_items)
-            logger.debug(f'retrieving from {offset=} (expected {total=})')
+            logger.info(f'retrieving from {offset=} (expected {total=})')
             res = get_with_retry(
                 self.api,
                 images=1,
@@ -96,7 +97,7 @@ class Exporter:
         return first_res
 
 
-def get_json(**params):
+def get_json(**params) -> Json:
     return Exporter(**params).export_json()
 
 
@@ -104,23 +105,19 @@ def main() -> None:
     parser = make_parser()
     args = parser.parse_args()
 
-    params = args.params
-    dumper = args.dumper
+    params = cli.get_params(parser, args)
 
     j = get_json(**params)
     js = json.dumps(j, ensure_ascii=False, indent=1)
-    dumper(js)
+    cli.dump(js, path=args.path)
 
 
-def make_parser():
-    from .exporthelpers.export_helper import Parser, setup_parser
-
-    parser = Parser('Export your personal Pocket data, *including highlights* as JSON.')
-    setup_parser(
-        parser=parser,
+def make_parser() -> argparse.ArgumentParser:
+    parser = cli.make_parser(
+        description='Export your personal Pocket data, **including highlights** as JSON.',
         params=['consumer_key', 'access_token'],
         extra_usage='''
-You can also import ~pockexport.export~ as a module and call ~get_json~ function directly to get raw JSON.
+You can also import `pockexport.export` as a module and call `get_json` function directly to get raw JSON.
 ''',
     )
     return parser

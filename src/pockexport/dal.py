@@ -1,18 +1,15 @@
 from __future__ import annotations
 
-import json
 from collections.abc import Iterator, Sequence
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import NamedTuple
 from zoneinfo import ZoneInfo
 
-from .exporthelpers import dal_helper
-from .exporthelpers.dal_helper import (
-    Json,
-    datetime_aware,
-    pathify,
-)
+import hpikit.cli.dal as cli
+from hpikit.datetime import AwareDateTime, aware
+from hpikit.json import Json, loads
+from hpikit.paths import as_paths
 
 # Pocket configures the annotations database session as US/Central.
 # Its /v3 transformer documents Central timestamps and emits ISO strings.
@@ -33,7 +30,7 @@ class Highlight(NamedTuple):
         return self.json['quote']
 
     @property
-    def created(self) -> datetime_aware:
+    def created(self) -> AwareDateTime:
         created_at_s = self.json['created_at']
         if created_at_s.endswith('Z'):
             # Pocket's API labels US/Central wall time as UTC.
@@ -42,7 +39,7 @@ class Highlight(NamedTuple):
             # older format (pre September 2024)
             # This is also US/Central wall time.
             dt = datetime.strptime(self.json['created_at'], '%Y-%m-%d %H:%M:%S')
-        return dt.replace(tzinfo=_CENTRAL).astimezone(UTC)
+        return aware(dt.replace(tzinfo=_CENTRAL).astimezone(UTC))
 
 
 class Article(NamedTuple):
@@ -65,8 +62,8 @@ class Article(NamedTuple):
         return 'https://app.getpocket.com/read/' + self.json['item_id']
 
     @property
-    def added(self) -> datetime_aware:
-        return datetime.fromtimestamp(int(self.json['time_added']), tz=UTC)
+    def added(self) -> AwareDateTime:
+        return aware(datetime.fromtimestamp(int(self.json['time_added']), tz=UTC))
 
     @property
     def highlights(self) -> Sequence[Highlight]:
@@ -79,13 +76,13 @@ class Article(NamedTuple):
 
 class DAL:
     def __init__(self, sources: Sequence[Path | str]) -> None:
-        self.sources = list(map(pathify, sources))
+        self.sources = as_paths(sources)
 
     def raw(self) -> Json:
         last = max(self.sources)
         # TODO not sure if worth elaborate merging logic?
         # TODO not sure if this should be more defensive against empty sources?
-        return json.loads(last.read_text())
+        return loads(last.read_bytes())
 
     def articles(self) -> Iterator[Article]:
         for j in self.raw()['list'].values():
@@ -138,4 +135,4 @@ def demo(dal: DAL) -> None:
 
 
 if __name__ == '__main__':
-    dal_helper.main(DAL=DAL, demo=demo)
+    cli.main(DAL=DAL, demo=demo)

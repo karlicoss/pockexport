@@ -233,7 +233,6 @@ lint.ignore = [
 #       "scratch/**",
 #   ]
 extend-exclude = [
-    "./dal.py",  # legacy helper
     "testdata/",
 ]
 
